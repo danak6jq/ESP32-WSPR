@@ -35,5 +35,5 @@ TODO: use GPIO to select low-pass filters when selecting frequency
 TODO: add a WebUI to control/configure the transmitter
 
 Transmitter automatically does SNTP time sync, sufficient for WSPR transmission.
-Kudos to @github/NT7S for the comprehensive Si5351 code; I started with his Arduino library (that I previously contributed to) and pared it back down to C for inclusion in the ESP-IDF project.
+Kudos to @NT7S for the comprehensive Si5351 code; I started with his Arduino library (that I previously contributed to) and pared it back down to C for inclusion in the ESP-IDF project.
 
