@@ -29,6 +29,7 @@ Transmission frequency is determined by this line in user_main.c:
 ```
 static uint64_t txFreq = (14095600 + 1500 - 50) * 100;
 ```
+Transmit power is roughly controlled by the output current setting on the Si5351 in this version; if you add an external power amplifier, you'll have to revise that. I meausured +9.6dBm into a 50 ohm load using output current of 6mA.
 
 TODO: add duty cycle control, add frequency hopping
 TODO: use GPIO to select low-pass filters when selecting frequency
