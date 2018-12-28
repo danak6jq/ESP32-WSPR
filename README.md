@@ -15,17 +15,17 @@ Required:
 
 Uses high-precision timer events in ESP32/ESP-IDF to synchronize baud transmission.
 Customize the WiFi SSID/password for your location in user_main.c:
-  /*
+  '/*
    * Set the WiFi info
    */
   #define EXAMPLE_WIFI_SSID "Pelosi2019"
-  #define EXAMPLE_WIFI_PASS "ImpeachTheBums"
+  #define EXAMPLE_WIFI_PASS "ImpeachTheBums"'
 
 TODO: make that configurable via menuconfig
 TODO: add a startup WebUI to autoconfigure WiFi
 
 Transmission frequency is determined by this line in user_main.c:
-  static uint64_t txFreq = (14095600 + 1500 - 50) * 100;
+  'static uint64_t txFreq = (14095600 + 1500 - 50) * 100;'
 
 TODO: add duty cycle control, add frequency hopping
 TODO: use GPIO to select low-pass filters when selecting frequency
