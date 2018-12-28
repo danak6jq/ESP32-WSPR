@@ -6,8 +6,8 @@ Uses ESP32 module (DevKitC in prototype) connected to Si5351A module (QRP Labs s
 This is a prototype built in a couple of days, lacks a lot of features, so add them and share them.
 
 Connection:
-  ESP32 GPIO18 to SDA
-  ESP32 GPIO19 to SCL
+  - ESP32 GPIO18 to SDA
+  - ESP32 GPIO19 to SCL
 
 Required:
   Add an appropriate low-pass filter to the output of the Si5351 module.
