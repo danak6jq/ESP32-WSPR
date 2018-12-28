@@ -29,7 +29,7 @@ Transmission frequency is determined by this line in user_main.c:
 ```
 static uint64_t txFreq = (14095600 + 1500 - 50) * 100;
 ```
-Transmit power is roughly controlled by the output current setting on the Si5351 in this version; if you add an external power amplifier, you'll have to revise that. I measured +9.6dBm into a 50 ohm load using output current of 6mA.
+Transmit power is roughly controlled by the output current setting on the Si5351 in this version; if you add an external power amplifier, you'll have to revise that. I measured +10.4dBm into a 50 ohm load using output current of 8mA.
 
 Set your WSPR info in this line of user_main.c:
 ```
