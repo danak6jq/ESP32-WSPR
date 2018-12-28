@@ -22,8 +22,8 @@ Customize the WiFi SSID/password for your location in user_main.c:
 #define EXAMPLE_WIFI_SSID "Pelosi2019"
 #define EXAMPLE_WIFI_PASS "ImpeachTheBums"
 ```
-TODO: make that configurable via menuconfig
-TODO: add a startup WebUI to autoconfigure WiFi
+[ ] make that configurable via menuconfig
+[ ] add a startup WebUI to autoconfigure WiFi
 
 Transmission frequency is determined by this line in user_main.c:
 ```
@@ -36,9 +36,9 @@ Set your WSPR info in this line of user_main.c:
     (void) get_wspr_channel_symbols("<K6JQ> CM88WE 10", syms);
 ```
 
-TODO: add duty cycle control, add frequency hopping
-TODO: use GPIO to select low-pass filters when selecting frequency
-TODO: add a WebUI to control/configure the transmitter
+[ ] add duty cycle control, add frequency hopping
+[ ] use GPIO to select low-pass filters when selecting frequency
+[ ] add a WebUI to control/configure the transmitter
 
 Transmitter automatically does SNTP time sync, sufficient for WSPR transmission.
 Kudos to @NT7S for the comprehensive Si5351 code; I started with his Arduino library (that I previously contributed to) and pared it back down to C for inclusion in the ESP-IDF project.
