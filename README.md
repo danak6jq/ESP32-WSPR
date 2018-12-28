@@ -15,7 +15,7 @@ Required:
 - Add an appropriate low-pass filter to the output of the Si5351 module.
 - You may wish to add a power amplifier as well.
 
-Uses high-precision timer events in ESP32/ESP-IDF to synchronize baud transmission. I would have used the less-espensive ESP8266, but it lacks the high-precision timer service required for accurate bit-timing.
+Uses high-precision timer events in ESP32/ESP-IDF to synchronize baud transmission. I would have used the less-expensive ESP8266, but it lacks the high-precision timer service required for accurate bit-timing.
 
 Customize the WiFi SSID/password for your location in user_main.c:
 ```
