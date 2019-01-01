@@ -43,3 +43,4 @@ Set your WSPR info in this line of user_main.c:
 Transmitter automatically does SNTP time sync, sufficient for WSPR transmission.
 Kudos to @NT7S for the comprehensive Si5351 code; I started with his Arduino library (that I previously contributed to) and pared it back down to C for inclusion in the ESP-IDF project.
 
+A simple power amplifier is 6 inverters in parallel; Vcc is 5V so mid-point bias and DC blocking capacitor on the input is required. A 74AHC04 produces 5Vp-p into 50 ohms, which is ~ +18dBm. With some low-pass filter and feedline loss, you'll see ~ +17dBm at the antenna.
