@@ -19,8 +19,8 @@ Uses high-precision timer events in ESP32/ESP-IDF to synchronize baud transmissi
 
 Customize the WiFi SSID/password for your location in user_main.c:
 ```
-#define EXAMPLE_WIFI_SSID "Pelosi2019"
-#define EXAMPLE_WIFI_PASS "ImpeachTheBums"
+#define EXAMPLE_WIFI_SSID "BidenHarris2020"
+#define EXAMPLE_WIFI_PASS "ImpeachTrump"
 ```
 - [ ] make that configurable via menuconfig
 - [ ] add a startup WebUI to autoconfigure WiFi
