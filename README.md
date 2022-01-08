@@ -2,7 +2,12 @@
 Complete stand-alone WSPR2 transmitter using ESP32 + Si5351 modules. Uses SNTP for transmit time-sync
 
 Prototype WSPR2 beacon transmitter for VLF to VHF operation.
-Uses ESP32 module (DevKitC in prototype) connected to Si5351A module (QRP Labs synth in prototype, though any Si5351 module should work).
+Uses ESP32 module (DevKitC in prototype) connected to Si5351A module (QRP Labs synth in prototype, though any Si5351 module should work). This Si5351A modules uses a 27.0MHz crystal oscillator, which is hard coded in like 345 of main/user_main.c:
+
+    si5351_init(SI5351_CRYSTAL_LOAD_10PF, 27000000, 175310);
+
+If you use a module with a 25MHz crystal, this needs to be changed. Of course, this ought to be a confiugurable parameter, send me a pull request if you implement that.
+
 This is a prototype built in a couple of days, lacks a lot of features, so add them and share them.
 
 Built using latest 'master' ESP-IDF (ESP-IDF v3.3-beta1)
