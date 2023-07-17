@@ -68,6 +68,7 @@ SOFTWARE.
 
 #include "si5351.h"
 #include "wspr.h"
+#include "sdkconfig.h"
 
 static void periodic_timer_callback(void* arg);
 
@@ -81,14 +82,19 @@ static const char *TAG = "main";
  *      SDA to ESP32 GPIO18
  */
 
-#define I2C_EXAMPLE_MASTER_SCL_IO	19
-#define I2C_EXAMPLE_MASTER_SDA_IO	18
+#define I2C_MASTER_SCL_IO	CONFIG_GPIO_SCL_PIN
+#define I2C_MASTER_SDA_IO	CONFIG_GPIO_SDA_PIN
 
 /*
  * Set the WiFi info
  */
-#define EXAMPLE_WIFI_SSID "Pelosi2019"
-#define EXAMPLE_WIFI_PASS "ImpeachTheBums"
+#define WIFI_SSID CONFIG_WIFI_SSID
+#define WIFI_PASS CONFIG_WIFI_PASS
+
+/*
+ * SNTP server
+ */
+#define SNTP_SERVER CONFIG_SNTP_SERVER
 
 /*
  * FreeRTOS event group to signal when we are connected & ready to
@@ -153,7 +159,7 @@ initialize_sntp(void)
 
     ESP_LOGI(TAG, "Initializing SNTP");
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
-    sntp_setservername(0, "pool.ntp.org");
+    sntp_setservername(0, SNTP_SERVER);
     sntp_init();
 }
 
@@ -171,8 +177,8 @@ initialise_wifi(void)
     ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     wifi_config_t wifi_config = {
         .sta = {
-            .ssid = EXAMPLE_WIFI_SSID,
-            .password = EXAMPLE_WIFI_PASS,
+            .ssid = WIFI_SSID,
+            .password = WIFI_PASS,
         },
     };
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
@@ -217,10 +223,11 @@ i2c_master_init()
     i2c_config_t conf;
 
     conf.mode = I2C_MODE_MASTER;
-    conf.sda_io_num = I2C_EXAMPLE_MASTER_SDA_IO;
+    conf.sda_io_num = I2C_MASTER_SDA_IO;
     conf.sda_pullup_en = 0;
-    conf.scl_io_num = I2C_EXAMPLE_MASTER_SCL_IO;
+    conf.scl_io_num = I2C_MASTER_SCL_IO;
     conf.scl_pullup_en = 0;
+    conf.clk_flags = 0;
     conf.master.clk_speed = 400000;
 
     ESP_ERROR_CHECK(i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0));
@@ -342,10 +349,10 @@ wsprTransmitter(void *arg)
     /* init I2C port 0 */
     i2c_master_init();
 
-    si5351_init(SI5351_CRYSTAL_LOAD_10PF, 27000000, 175310);
+    si5351_init(SI5351_CRYSTAL_LOAD_10PF, CONFIG_XTAL_FREQ, 175310);
     si5351_start(SI5351_CLK0, txFreq);
 
-    (void) get_wspr_channel_symbols("<K6JQ> CM88WE 10", syms);
+    (void) get_wspr_channel_symbols("<SA0LEF> JO99bn 10", syms);
 
     /* send frame */
     while (true) {

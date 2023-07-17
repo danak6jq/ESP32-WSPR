@@ -1,0 +1,35 @@
+menu "ESP32-WSPR Configuration"
+
+	orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
+
+	config GPIO_SCL_PIN
+		int
+		prompt "I2C SCL pin"
+		default 19
+
+	config GPIO_SDA_PIN
+		int
+		prompt "I2C SDA pin"
+		default 18
+
+	config SNTP_SERVER
+		string
+		prompt "SNTP server (hostname or ip address)"
+		default "pool.ntp.org"
+
+	config WIFI_SSID
+		string
+		prompt "WIFI ssid"
+		default "example"
+
+	config WIFI_PASS
+		string
+		prompt "WIFI password"
+		default "secret"
+
+	config XTAL_FREQ
+		int
+		prompt "si351a xtal frequency"
+		default 25000000
+
+endmenu
