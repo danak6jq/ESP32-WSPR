@@ -229,6 +229,7 @@ i2c_master_init()
     conf.scl_pullup_en = 0;
     conf.clk_flags = 0;
     conf.master.clk_speed = 400000;
+    conf.clk_flags = 0;
 
     ESP_ERROR_CHECK(i2c_driver_install(i2c_master_port, conf.mode, 0, 0, 0));
     ESP_ERROR_CHECK(i2c_param_config(i2c_master_port, &conf));
