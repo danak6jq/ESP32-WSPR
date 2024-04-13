@@ -1,5 +1,4 @@
 # ESP32-WSPR
-# NOTE: fractional-N synthesizers like that in the Si5351 generate low-level spurs which may be sufficient to be detected as duplicates on nearby frequencies. Recommend not running over +17dBm output power with any Si5351-based WSPR transmitter
 
 Complete stand-alone WSPR2 transmitter using ESP32 + Si5351 modules. Uses SNTP for transmit time-sync
 
