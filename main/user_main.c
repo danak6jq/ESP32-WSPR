@@ -262,6 +262,7 @@ si5351_write_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_stop(cmd);
 
     ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     return (ret);
 }
@@ -279,6 +280,7 @@ si5351_read_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_stop(cmd);
 
     ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     if (ret != ESP_OK) {
 	return (ret);
@@ -292,6 +294,7 @@ si5351_read_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_stop(cmd);
 
     ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     return (ret);
 }
@@ -359,7 +362,7 @@ wsprTransmitter(void *arg)
     /* init I2C port 0 */
     i2c_master_init();
 
-    si5351_init(SI5351_CRYSTAL_LOAD_10PF, CONFIG_XTAL_FREQ, 175310);
+    si5351_init(SI5351_CRYSTAL_LOAD_10PF, CONFIG_SI5351_XTAL_FREQ, 175310);
     si5351_start(SI5351_CLK0, txFreq);
 
     (void) get_wspr_channel_symbols("<SA0LEF> JO99bn 10", syms);
