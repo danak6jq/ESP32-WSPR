@@ -27,7 +27,7 @@ menu "ESP32-WSPR Configuration"
 		prompt "WIFI password"
 		default "secret"
 
-	config XTAL_FREQ
+	config SI5351_XTAL_FREQ
 		int
 		prompt "si351a xtal frequency"
 		default 25000000
