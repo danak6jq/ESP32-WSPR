@@ -141,7 +141,7 @@ encode(
 	   uint8_t *data,		// Input buffer, nbytes
 	   size_t nbytes)		// Number of bytes in data
 {
-  ulong encstate;
+  unsigned long encstate;
   int sym;
   int i;
 
@@ -502,17 +502,17 @@ nhash( const void *key, size_t length, uint32_t initval)
     /*-------------------------------- last block: affect all 32 bits of (c) */
     switch(length)                   /* all the case statements fall through */
     {
-    case 12: c+=((uint32_t)k[11])<<24;
-    case 11: c+=((uint32_t)k[10])<<16;
-    case 10: c+=((uint32_t)k[9])<<8;
-    case 9 : c+=k[8];
-    case 8 : b+=((uint32_t)k[7])<<24;
-    case 7 : b+=((uint32_t)k[6])<<16;
-    case 6 : b+=((uint32_t)k[5])<<8;
-    case 5 : b+=k[4];
-    case 4 : a+=((uint32_t)k[3])<<24;
-    case 3 : a+=((uint32_t)k[2])<<16;
-    case 2 : a+=((uint32_t)k[1])<<8;
+    case 12: c+=((uint32_t)k[11])<<24; __attribute((fallthrough));
+    case 11: c+=((uint32_t)k[10])<<16; __attribute((fallthrough));
+    case 10: c+=((uint32_t)k[9])<<8; __attribute((fallthrough));
+    case 9 : c+=k[8]; __attribute((fallthrough));
+    case 8 : b+=((uint32_t)k[7])<<24; __attribute((fallthrough));
+    case 7 : b+=((uint32_t)k[6])<<16; __attribute((fallthrough));
+    case 6 : b+=((uint32_t)k[5])<<8; __attribute((fallthrough));
+    case 5 : b+=k[4]; __attribute((fallthrough));
+    case 4 : a+=((uint32_t)k[3])<<24; __attribute((fallthrough));
+    case 3 : a+=((uint32_t)k[2])<<16; __attribute((fallthrough));
+    case 2 : a+=((uint32_t)k[1])<<8; __attribute((fallthrough));
     case 1 : a+=k[0];
              break;
     case 0 : return c;
@@ -774,7 +774,7 @@ get_wspr_channel_symbols(char* rawmessage, uint8_t* symbols)
         if( power < 0 ) power=0;
         if( power > 60 ) power=60;
         power=power+nu[power%10];
-        int n1, ng, nadd;
+        int32_t n1, ng, nadd;
         pack_prefix(callsign, &n1, &ng, &nadd);
         ntype=power + 1 + nadd;
         m=128*ng+ntype+64;
