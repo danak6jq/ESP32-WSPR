@@ -49,9 +49,7 @@ SOFTWARE.
 #include "esp_err.h"
 #include "esp_wifi.h"
 #include "esp_event.h"
-#include "esp_event_loop.h"
 #include "esp_system.h"
-#include "esp_spi_flash.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
 #include "esp_attr.h"
@@ -116,7 +114,7 @@ const int CONNECTED_BIT = BIT0;
 static void obtain_time(void);
 static void initialize_sntp(void);
 static void initialise_wifi(void);
-static esp_err_t event_handler(void *ctx, system_event_t *event);
+static void wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data);
 
 /*
  *
@@ -142,7 +140,7 @@ obtain_time(void)
     retry = TIME_RETRY_COUNT;
     while(timeinfo.tm_year < (2016 - 1900) && (retry-- > 0)) {
         ESP_LOGI(TAG, "Waiting for system time to be set... (%d)", retry);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(2000));
         time(&now);
         localtime_r(&now, &timeinfo);
     }
@@ -169,12 +167,20 @@ initialize_sntp(void)
 static void
 initialise_wifi(void)
 {
-    tcpip_adapter_init();
+    esp_netif_init();
+
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_event_loop_create_default() );
+
+    esp_netif_create_default_wifi_sta();
+
     wifi_event_group = xEventGroupCreate();
-    ESP_ERROR_CHECK( esp_event_loop_init(event_handler, NULL) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_event_handler_instance_register(
+                WIFI_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL, NULL) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_event_handler_instance_register(
+                IP_EVENT, ESP_EVENT_ANY_ID, wifi_event_handler, NULL, NULL) );
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
-    ESP_ERROR_CHECK( esp_wifi_init(&cfg) );
-    ESP_ERROR_CHECK( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_wifi_init(&cfg) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_wifi_set_storage(WIFI_STORAGE_RAM) );
     wifi_config_t wifi_config = {
         .sta = {
             .ssid = WIFI_SSID,
@@ -182,25 +188,29 @@ initialise_wifi(void)
         },
     };
     ESP_LOGI(TAG, "Setting WiFi configuration SSID %s...", wifi_config.sta.ssid);
-    ESP_ERROR_CHECK( esp_wifi_set_mode(WIFI_MODE_STA) );
-    ESP_ERROR_CHECK( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
-    ESP_ERROR_CHECK( esp_wifi_start() );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_wifi_set_mode(WIFI_MODE_STA) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config) );
+    ESP_ERROR_CHECK_WITHOUT_ABORT( esp_wifi_start() );
 }
 
 /*
  *
  */
-static esp_err_t
-event_handler(void *ctx, system_event_t *event)
+static void
+wifi_event_handler(void *event_handler_arg, esp_event_base_t event_base, int32_t event_id, void *event_data)
 {
-    switch(event->event_id) {
-    case SYSTEM_EVENT_STA_START:
+    ESP_LOGI(TAG, "Event received: %s, id %i", event_base, event_id);
+    switch(event_id) {
+    case WIFI_EVENT_STA_START:
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_START");
         esp_wifi_connect();
         break;
-    case SYSTEM_EVENT_STA_GOT_IP:
+    case IP_EVENT_STA_GOT_IP:
+        ESP_LOGI(TAG, "GOT_IP");
         xEventGroupSetBits(wifi_event_group, CONNECTED_BIT);
         break;
-    case SYSTEM_EVENT_STA_DISCONNECTED:
+    case WIFI_EVENT_STA_DISCONNECTED:
+        ESP_LOGI(TAG, "WIFI_EVENT_STA_DISCONNECTED");
         /* This is a workaround as ESP32 WiFi libs don't currently
            auto-reassociate. */
         esp_wifi_connect();
@@ -209,7 +219,6 @@ event_handler(void *ctx, system_event_t *event)
     default:
         break;
     }
-    return ESP_OK;
 }
 
 
@@ -252,7 +261,8 @@ si5351_write_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_write(cmd, data, count, true);
     i2c_master_stop(cmd);
 
-    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_RATE_MS);
+    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     return (ret);
 }
@@ -269,7 +279,8 @@ si5351_read_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_write_byte(cmd, reg, 1);
     i2c_master_stop(cmd);
 
-    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_PERIOD_MS);
+    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     if (ret != ESP_OK) {
 	return (ret);
@@ -282,7 +293,8 @@ si5351_read_xfer(uint8_t reg, uint8_t *data, int count)
     i2c_master_read(cmd, data, count, 2);
     i2c_master_stop(cmd);
 
-    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, 1000 / portTICK_PERIOD_MS);
+    ret = i2c_master_cmd_begin(I2C_NUM_1, cmd, pdMS_TO_TICKS(1000));
+    ESP_ERROR_CHECK_WITHOUT_ABORT(ret);
     i2c_cmd_link_delete(cmd);
     return (ret);
 }
@@ -314,9 +326,9 @@ si5351_start(enum si5351_clock clk, int64_t freq)
 /*
  *
  */
-static uint64_t txFreq = (14095600 + 1500 - 50) * 100;
+//static uint64_t txFreq = (14095600 + 1500 - 50) * 100;
 //static uint64_t txFreq = (10138700 + 1500 - 4) * 100;
-//static uint64_t txFreq = (7038600 + 1500 - 4) * 100;
+static uint64_t txFreq = (7038600 + 1500 - 4) * 100;
 static const uint64_t txStep = (uint64_t)((12000 * 100) / 8192);
 
 static uint8_t syms[162];
@@ -350,7 +362,7 @@ wsprTransmitter(void *arg)
     /* init I2C port 0 */
     i2c_master_init();
 
-    si5351_init(SI5351_CRYSTAL_LOAD_10PF, CONFIG_XTAL_FREQ, 175310);
+    si5351_init(SI5351_CRYSTAL_LOAD_10PF, CONFIG_SI5351_XTAL_FREQ, 175310);
     si5351_start(SI5351_CLK0, txFreq);
 
     (void) get_wspr_channel_symbols("<SA0LEF> JO99bn 10", syms);
@@ -363,14 +375,14 @@ wsprTransmitter(void *arg)
          * XXX: do limited duty-cycle here
          */
         do {
-            taskYIELD();
+            vTaskDelay(pdMS_TO_TICKS(500));
             time(&now);
             gmtime_r(&now, &timeinfo);
         } while ((timeinfo.tm_sec != 0) || ((timeinfo.tm_min % 2) != 0));
         printf("start: %d:%d\n", timeinfo.tm_min, timeinfo.tm_sec);
 
         /* delat 1 second into the frame */
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
+        vTaskDelay(pdMS_TO_TICKS(1000));
 
         /* start first baud */
         si5351_set_freq(syms[txIndex++] * txStep + txFreq, SI5351_CLK0);
@@ -403,6 +415,8 @@ void app_main(void)
 {
     time_t now;
     struct tm timeinfo;
+
+    vTaskDelay(pdMS_TO_TICKS(1000));
 
     /* get the current time */
     time(&now);
